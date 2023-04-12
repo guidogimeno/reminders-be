@@ -28,8 +28,9 @@ func (s *ApiServer) Start(listenAddr string) error {
 	router.HandleFunc("/{id}", s.handleDeleteReminder).Methods("DELETE")
 
 	origins := handlers.AllowedOrigins([]string{"*"})
+	methods := handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE"})
 
-	return http.ListenAndServe(fmt.Sprintf(":%s", listenAddr), handlers.CORS(origins)(router))
+	return http.ListenAndServe(fmt.Sprintf(":%s", listenAddr), handlers.CORS(origins, methods)(router))
 }
 
 func (s *ApiServer) handleGetReminders(w http.ResponseWriter, r *http.Request) {
