@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -26,11 +27,12 @@ func (s *ApiServer) Start(listenAddr string) error {
 	router.HandleFunc("/{id}", s.handleUpdateReminder).Methods("PUT")
 	router.HandleFunc("/{id}", s.handleDeleteReminder).Methods("DELETE")
 
-	return http.ListenAndServe(fmt.Sprintf(":%s", listenAddr), router)
+	origins := handlers.AllowedOrigins([]string{"*"})
+
+	return http.ListenAndServe(fmt.Sprintf(":%s", listenAddr), handlers.CORS(origins)(router))
 }
 
 func (s *ApiServer) handleGetReminders(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	reminders, err := s.storer.GetReminders()
 	if err != nil {
 		writeJSON(w, http.StatusUnprocessableEntity, map[string]any{"error": err.Error()})
@@ -40,7 +42,6 @@ func (s *ApiServer) handleGetReminders(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ApiServer) handleCreateReminder(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	var reminderBody Reminder
 	err := json.NewDecoder(r.Body).Decode(&reminderBody)
 	if err != nil {
@@ -58,7 +59,6 @@ func (s *ApiServer) handleCreateReminder(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *ApiServer) handleUpdateReminder(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	params := mux.Vars(r)
 	id := params["id"]
 
@@ -79,7 +79,6 @@ func (s *ApiServer) handleUpdateReminder(w http.ResponseWriter, r *http.Request)
 }
 
 func (s *ApiServer) handleDeleteReminder(w http.ResponseWriter, r *http.Request) {
-	enableCors(&w)
 	params := mux.Vars(r)
 	id := params["id"]
 
@@ -90,10 +89,6 @@ func (s *ApiServer) handleDeleteReminder(w http.ResponseWriter, r *http.Request)
 	}
 
 	writeJSON(w, http.StatusNoContent, nil)
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
 }
 
 func writeJSON(w http.ResponseWriter, status int, value any) error {
