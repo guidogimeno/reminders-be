@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -29,6 +30,7 @@ func (s *ApiServer) Start(listenAddr string) error {
 }
 
 func (s *ApiServer) handleGetReminders(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("GET reminders")
 	reminders, err := s.storer.GetReminders()
 	if err != nil {
 		writeJSON(w, http.StatusUnprocessableEntity, map[string]any{"error": err.Error()})

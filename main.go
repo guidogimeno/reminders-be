@@ -14,6 +14,7 @@ import (
 func main() {
 	fmt.Println("Starting server...")
 
+	fmt.Println("Starting environment variables...")
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -31,9 +32,21 @@ func main() {
 
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
+		log.Fatal("Error loading mysql")
 		panic(err.Error())
 	}
 	defer db.Close()
+
+	fmt.Println(
+		port,
+		user,
+		password,
+		host,
+		dbPort,
+		database,
+		connectionString,
+		db,
+	)
 
 	mysql := api.NewMySQLService(db)
 	server := api.NewApiServer(mysql)
