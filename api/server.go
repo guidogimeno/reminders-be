@@ -26,7 +26,7 @@ func (s *ApiServer) Start(listenAddr string) error {
 	router.HandleFunc("/{id}", s.handleUpdateReminder).Methods("PUT")
 	router.HandleFunc("/{id}", s.handleDeleteReminder).Methods("DELETE")
 
-	return http.ListenAndServe(listenAddr, router)
+	return http.ListenAndServe(fmt.Sprintf(":%s", listenAddr), router)
 }
 
 func (s *ApiServer) handleGetReminders(w http.ResponseWriter, r *http.Request) {
